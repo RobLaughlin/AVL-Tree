@@ -21,6 +21,90 @@ class AVLNode {
             this.right = new AVLNode(value);
         }
     }
+
+    find(value) {
+        if (this.value === value) {
+            return this;
+        }
+
+        if (this.left !== null && value < this.value) {
+            return this.left.find(value); // Traverse left
+        } else if (this.right !== null && value > this.value) {
+            return this.right.find(value); // Traverse right
+        } else {
+            return null; // Value not found
+        }
+    }
+
+    // Returns the deleted node if it exists, and null if it doesn't exist.
+    delete(value) {
+        const removeNullChildren = (node) => {
+            const leftNull = node.left !== null && node.left.value === null;
+            const rightNull = node.right !== null && node.right.value === null;
+
+            node.left = leftNull ? null : node.left;
+            node.right = rightNull ? null : node.right;
+        };
+
+        // Find the target value first
+        if (this.value !== value) {
+            const nextNode = value <= this.value ? this.left : this.right;
+
+            // Node not found
+            if (nextNode === null) {
+                return null;
+            }
+
+            const deleted = nextNode.delete(value);
+            removeNullChildren(this);
+            return deleted;
+        }
+
+        // When the value is found, null the value so we know when to remove it
+        this.value = null;
+
+        let deletedNode = null;
+
+        // If this node is a leaf
+        if (this.left === null && this.right === null) {
+            deletedNode = this;
+        }
+
+        // If this node has exactly one non-empty subtree
+        else if (this.left === null || this.right === null) {
+            const target = this.left !== null ? this.left : this.right;
+
+            // Swap the values
+            this.value = target.value;
+            target.value = value;
+
+            this.left = target.left;
+            this.right = target.right;
+
+            deletedNode = target;
+        }
+
+        // If this node has exactly two non-empty subtrees
+        else {
+            // Find the maximum node of the left subtree (successor)
+            let maxNode = this.left;
+            let maxParent = this;
+            while (maxNode.right !== null) {
+                maxParent = maxNode;
+                maxNode = maxNode.right;
+            }
+
+            // Swap the values
+            this.value = maxNode.value;
+            maxNode.value = value;
+
+            deletedNode = maxNode.delete(value);
+
+            removeNullChildren(maxParent);
+        }
+
+        return deletedNode;
+    }
 }
 
 export class AVLTree {
