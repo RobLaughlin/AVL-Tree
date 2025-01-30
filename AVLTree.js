@@ -128,6 +128,36 @@ class AVLNode {
             }
         }
     }
+
+    inOrder(callback) {
+        if (this.left !== null) {
+            this.left.inOrder(callback);
+        }
+        callback(this);
+        if (this.right !== null) {
+            this.right.inOrder(callback);
+        }
+    }
+
+    preOrder(callback) {
+        callback(this);
+        if (this.left !== null) {
+            this.left.preOrder(callback);
+        }
+        if (this.right !== null) {
+            this.right.preOrder(callback);
+        }
+    }
+
+    postOrder(callback) {
+        if (this.left !== null) {
+            this.left.postOrder(callback);
+        }
+        if (this.right !== null) {
+            this.right.postOrder(callback);
+        }
+        callback(this);
+    }
 }
 
 export class AVLTree {
