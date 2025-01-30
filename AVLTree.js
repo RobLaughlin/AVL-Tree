@@ -1,8 +1,22 @@
+import { Queue } from "./Queue.js";
+
 class AVLNode {
     constructor(value) {
         this.value = value;
         this.left = null;
         this.right = null;
+    }
+
+    static removeNullChildren(node) {
+        if (node === null) {
+            return;
+        }
+
+        const leftNull = node.left !== null && node.left.value === null;
+        const rightNull = node.right !== null && node.right.value === null;
+
+        node.left = leftNull ? null : node.left;
+        node.right = rightNull ? null : node.right;
     }
 
     insert(value) {
@@ -38,14 +52,6 @@ class AVLNode {
 
     // Returns the deleted node if it exists, and null if it doesn't exist.
     delete(value) {
-        const removeNullChildren = (node) => {
-            const leftNull = node.left !== null && node.left.value === null;
-            const rightNull = node.right !== null && node.right.value === null;
-
-            node.left = leftNull ? null : node.left;
-            node.right = rightNull ? null : node.right;
-        };
-
         // Find the target value first
         if (this.value !== value) {
             const nextNode = value <= this.value ? this.left : this.right;
@@ -56,7 +62,7 @@ class AVLNode {
             }
 
             const deleted = nextNode.delete(value);
-            removeNullChildren(this);
+            AVLNode.removeNullChildren(this);
             return deleted;
         }
 
@@ -100,10 +106,27 @@ class AVLNode {
 
             deletedNode = maxNode.delete(value);
 
-            removeNullChildren(maxParent);
+            AVLNode.removeNullChildren(maxParent);
         }
 
         return deletedNode;
+    }
+
+    levelOrder(callback) {
+        const queue = new Queue([this]);
+        while (queue.size() > 0) {
+            for (let i = 0; i < queue.size(); i++) {
+                const node = queue.dequeue();
+                callback(node);
+
+                if (node.left !== null) {
+                    queue.enqueue(node.left);
+                }
+                if (node.right !== null) {
+                    queue.enqueue(node.right);
+                }
+            }
+        }
     }
 }
 

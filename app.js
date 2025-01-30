@@ -29,6 +29,13 @@ function testAVLTree() {
     console.log("\nRemoving a duplicate node 5...");
     root.delete(5);
     prettyPrint(root);
+
+    const rootLevelOrdered = [];
+    root.levelOrder((node) => {
+        rootLevelOrdered.push(node.value);
+    });
+
+    console.log(`Level order of root node: ${rootLevelOrdered}`);
 }
 
 testAVLTree();
