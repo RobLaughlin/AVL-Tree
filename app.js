@@ -7,6 +7,7 @@ function testAVLTree() {
     const root = tree.root;
     console.log("Current tree:");
     prettyPrint(root);
+    console.log(`Is the tree balanced: ${tree.isBalanced()}`);
 
     console.log("Heights of nodes in level order");
     let heights = [];
@@ -25,22 +26,27 @@ function testAVLTree() {
     console.log("\nDeleting -2...");
     root.delete(-2);
     prettyPrint(root);
+    console.log(`Is the tree balanced: ${tree.isBalanced()}`);
 
     console.log("\nDeleting -5.5...");
     root.delete(-5.5);
     prettyPrint(root);
+    console.log(`Is the tree balanced: ${tree.isBalanced()}`);
 
     console.log("\nRemoving a leaf node -1001...");
     root.delete(-1001);
     prettyPrint(root);
+    console.log(`Is the tree balanced: ${tree.isBalanced()}`);
 
     console.log("\nRemoving a node with one non-empty subtree -1000...");
     root.delete(-1000);
     prettyPrint(root);
+    console.log(`Is the tree balanced: ${tree.isBalanced()}`);
 
     console.log("\nRemoving a non-existant node 5...");
     root.delete(5);
     prettyPrint(root);
+    console.log(`Is the tree balanced: ${tree.isBalanced()}`);
 
     const rootLevelOrdered = [];
     root.levelOrder((node) => {

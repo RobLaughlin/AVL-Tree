@@ -188,6 +188,24 @@ class AVLNode {
         const node = this.find(value);
         return node === null ? -1 : this.height() - node.height();
     }
+
+    isBalanced(recursive = true) {
+        const lHeight = this.left === null ? -1 : this.left.height();
+        const rHeight = this.right === null ? -1 : this.right.height();
+        let thisNodeBalanced = Math.abs(lHeight - rHeight) <= 1;
+
+        if (recursive) {
+            if (this.left !== null) {
+                thisNodeBalanced &&= this.left.isBalanced();
+            }
+
+            if (this.right !== null) {
+                thisNodeBalanced &&= this.right.isBalanced();
+            }
+        }
+
+        return thisNodeBalanced;
+    }
 }
 
 export class AVLTree {
@@ -207,6 +225,10 @@ export class AVLTree {
 
     depth(value) {
         return this.root.depth(value);
+    }
+
+    isBalanced() {
+        return this.root.isBalanced();
     }
 }
 
