@@ -8,6 +8,13 @@ function testAVLTree() {
     console.log("Current tree:");
     prettyPrint(root);
 
+    console.log("Heights of nodes in level order");
+    let heights = [];
+    root.levelOrder((node) => {
+        heights.push(`value: ${node.value}, height: ${node.height()}`);
+    });
+
+    console.log(heights);
     console.log("\nDeleting -2...");
     root.delete(-2);
     prettyPrint(root);
@@ -51,6 +58,13 @@ function testAVLTree() {
         rootPostOrdered.push(node.value);
     });
     console.log(`Post order of root node: ${rootPostOrdered}`);
+
+    console.log("Heights of nodes in level order");
+    heights = [];
+    root.levelOrder((node) => {
+        heights.push(`value: ${node.value}, height: ${node.height()}`);
+    });
+    console.log(heights);
 }
 
 testAVLTree();

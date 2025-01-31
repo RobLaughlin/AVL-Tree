@@ -1,6 +1,8 @@
 import { Queue } from "./Queue.js";
 
 class AVLNode {
+    #height = 0;
+
     constructor(value) {
         this.value = value;
         this.left = null;
@@ -19,6 +21,13 @@ class AVLNode {
         node.right = rightNull ? null : node.right;
     }
 
+    updateHeight() {
+        const lHeight = this.left === null ? -1 : this.left.height();
+        const rHeight = this.right === null ? -1 : this.right.height();
+
+        this.#height = Math.max(lHeight, rHeight) + 1;
+    }
+
     insert(value) {
         // Recursively traverse the subtree and insert the node
         if (this.left !== null && value <= this.value) {
@@ -34,6 +43,7 @@ class AVLNode {
             // Insert right
             this.right = new AVLNode(value);
         }
+        this.updateHeight();
     }
 
     find(value) {
@@ -63,6 +73,7 @@ class AVLNode {
 
             const deleted = nextNode.delete(value);
             AVLNode.removeNullChildren(this);
+            this.updateHeight();
             return deleted;
         }
 
@@ -93,11 +104,15 @@ class AVLNode {
         // If this node has exactly two non-empty subtrees
         else {
             // Find the maximum node of the left subtree (successor)
+            // Push [node, nodeParent] pairs onto the stack.
+            const stack = [[this.left, this]];
+
             let maxNode = this.left;
             let maxParent = this;
             while (maxNode.right !== null) {
                 maxParent = maxNode;
                 maxNode = maxNode.right;
+                stack.push([maxNode, maxParent]);
             }
 
             // Swap the values
@@ -106,7 +121,11 @@ class AVLNode {
 
             deletedNode = maxNode.delete(value);
 
-            AVLNode.removeNullChildren(maxParent);
+            while (stack.length > 0) {
+                const [node, parent] = stack.pop();
+                AVLNode.removeNullChildren(parent);
+                node.updateHeight();
+            }
         }
 
         return deletedNode;
@@ -157,6 +176,10 @@ class AVLNode {
             this.right.postOrder(callback);
         }
         callback(this);
+    }
+
+    height() {
+        return this.#height;
     }
 }
 
