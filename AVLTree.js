@@ -118,9 +118,9 @@ class AVLNode {
             // Swap the values
             this.value = maxNode.value;
             maxNode.value = value;
-
             deletedNode = maxNode.delete(value);
 
+            // Update the heights of the nodes we traversed
             while (stack.length > 0) {
                 const [node, parent] = stack.pop();
                 AVLNode.removeNullChildren(parent);
@@ -181,6 +181,13 @@ class AVLNode {
     height() {
         return this.#height;
     }
+
+    depth(value) {
+        // Assumes that this node is the root to calculate the depth.
+        // Returns -1 if the node is not found.
+        const node = this.find(value);
+        return node === null ? -1 : this.height() - node.height();
+    }
 }
 
 export class AVLTree {
@@ -196,6 +203,10 @@ export class AVLTree {
         }
 
         return root;
+    }
+
+    depth(value) {
+        return this.root.depth(value);
     }
 }
 

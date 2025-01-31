@@ -14,6 +14,13 @@ function testAVLTree() {
         heights.push(`value: ${node.value}, height: ${node.height()}`);
     });
 
+    console.log("Depths of nodes in level order");
+    let depths = [];
+    root.levelOrder((node) => {
+        depths.push(`value: ${node.value}, depth: ${tree.depth(node.value)}`);
+    });
+
+    console.log(depths);
     console.log(heights);
     console.log("\nDeleting -2...");
     root.delete(-2);
@@ -65,6 +72,13 @@ function testAVLTree() {
         heights.push(`value: ${node.value}, height: ${node.height()}`);
     });
     console.log(heights);
+
+    console.log("Depths of nodes in level order");
+    depths = [];
+    root.levelOrder((node) => {
+        depths.push(`value: ${node.value}, depth: ${tree.depth(node.value)}`);
+    });
+    console.log(depths);
 }
 
 testAVLTree();
