@@ -21,6 +21,47 @@ class AVLNode {
         node.right = rightNull ? null : node.right;
     }
 
+    static getChildDir(node, parent) {
+        if (node === null || parent === null) {
+            return null;
+        }
+
+        return node.value <= parent.value ? "left" : "right";
+    }
+
+    rotate(left = true) {
+        // Leverage symmetry
+        const dir = left ? "left" : "right";
+        const opp = left ? "right" : "left";
+
+        // Check if we can rotate
+        if (this[opp] === null) {
+            return;
+        }
+
+        // Swap the values
+        let tmp = this.value;
+        this.value = this[opp].value;
+        this[opp].value = tmp;
+
+        // Swap subtrees
+        tmp = this[opp].left;
+        this[opp].left = this[opp].right;
+        this[opp].right = tmp;
+
+        tmp = this[opp][dir];
+        this[opp][dir] = this[dir];
+        this[dir] = tmp;
+
+        // Swap left and right child
+        tmp = this.left;
+        this.left = this.right;
+        this.right = tmp;
+
+        this[dir].updateHeight();
+        this.updateHeight();
+    }
+
     updateHeight() {
         const lHeight = this.left === null ? -1 : this.left.height();
         const rHeight = this.right === null ? -1 : this.right.height();
@@ -29,8 +70,13 @@ class AVLNode {
     }
 
     insert(value) {
+        // Don't allow for duplicate keys
+        if (value === this.value) {
+            return;
+        }
+
         // Recursively traverse the subtree and insert the node
-        if (this.left !== null && value <= this.value) {
+        if (this.left !== null && value < this.value) {
             // Traverse left
             this.left.insert(value);
         } else if (this.right !== null && value > this.value) {
@@ -39,11 +85,12 @@ class AVLNode {
         } else if (this.left === null && value <= this.value) {
             // Insert left
             this.left = new AVLNode(value);
-        } else {
+        } else if (this.right === null && value > this.value) {
             // Insert right
             this.right = new AVLNode(value);
         }
         this.updateHeight();
+        this.rebalance();
     }
 
     find(value) {
@@ -74,6 +121,8 @@ class AVLNode {
             const deleted = nextNode.delete(value);
             AVLNode.removeNullChildren(this);
             this.updateHeight();
+            this.rebalance();
+
             return deleted;
         }
 
@@ -125,8 +174,12 @@ class AVLNode {
                 const [node, parent] = stack.pop();
                 AVLNode.removeNullChildren(parent);
                 node.updateHeight();
+                node.rebalance();
             }
         }
+
+        this.updateHeight();
+        this.rebalance();
 
         return deletedNode;
     }
@@ -189,27 +242,57 @@ class AVLNode {
         return node === null ? -1 : this.height() - node.height();
     }
 
-    isBalanced(recursive = true) {
+    childHeightDifference() {
+        // Returns the height difference between the right subtree and the left subtree.
         const lHeight = this.left === null ? -1 : this.left.height();
         const rHeight = this.right === null ? -1 : this.right.height();
-        let thisNodeBalanced = Math.abs(lHeight - rHeight) <= 1;
+        return rHeight - lHeight;
+    }
 
-        if (recursive) {
-            if (this.left !== null) {
-                thisNodeBalanced &&= this.left.isBalanced();
-            }
+    isBalanced() {
+        let thisNodeBalanced = Math.abs(this.childHeightDifference()) <= 1;
 
-            if (this.right !== null) {
-                thisNodeBalanced &&= this.right.isBalanced();
-            }
+        if (this.left !== null) {
+            thisNodeBalanced &&= this.left.isBalanced();
+        }
+
+        if (this.right !== null) {
+            thisNodeBalanced &&= this.right.isBalanced();
         }
 
         return thisNodeBalanced;
     }
+
+    rebalance() {
+        const delta = this.childHeightDifference();
+
+        // this node is balanced, no need to rebalance this node.
+        if (Math.abs(delta) <= 1) {
+            return;
+        }
+
+        // Leverage symmetry
+        const heavyDir = delta > 1 ? "right" : "left";
+
+        const childDelta = this[heavyDir].childHeightDifference();
+        const rotateLeft = delta > 1;
+
+        const sameSideHeavy = childDelta * delta;
+        // Same side heavy or balanced
+        if (sameSideHeavy >= 0) {
+            this.rotate(rotateLeft);
+        }
+
+        // Opposite side heavy
+        else {
+            this[heavyDir].rotate(!rotateLeft);
+            this.rotate(rotateLeft);
+        }
+    }
 }
 
 export class AVLTree {
-    constructor(values) {
+    constructor(values = []) {
         this.root = AVLTree.buildTree(values);
     }
 
@@ -229,6 +312,14 @@ export class AVLTree {
 
     isBalanced() {
         return this.root.isBalanced();
+    }
+
+    insert(value) {
+        if (this.root === null) {
+            this.root = new AVLNode(value);
+        } else {
+            this.root.insert(value);
+        }
     }
 }
 
